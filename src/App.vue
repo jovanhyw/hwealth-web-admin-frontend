@@ -2,6 +2,7 @@
   <v-app>
     <NavbarAuthenticated v-if="isAuthenticated" />
     <NavbarPublic v-else />
+
     <v-content>
       <router-view></router-view>
     </v-content>
@@ -14,13 +15,14 @@ import NavbarPublic from '@/components/NavbarPublic'
 
 export default {
   name: 'App',
-  components: { NavbarAuthenticated, NavbarPublic },
-  data: () => ({
-    //
-  }),
+  components: {
+    NavbarAuthenticated,
+    NavbarPublic
+  },
+  data: () => ({}),
   computed: {
     isAuthenticated() {
-      return false
+      return this.$store.getters.isAuthenticated
     }
   }
 }

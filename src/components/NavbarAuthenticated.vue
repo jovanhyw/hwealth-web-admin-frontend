@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-app-bar color="primary" dark>
+    <v-app-bar color="primary" dark class="px-12">
       <!-- Brand Logo -->
       <v-app-bar-nav-icon class="ml-4">
         <v-avatar>
