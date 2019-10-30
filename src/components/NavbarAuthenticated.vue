@@ -30,6 +30,8 @@
 </template>
 
 <script>
+import { LOGOUT } from '../store/modules/actions.type'
+
 export default {
   name: 'NavbarAuthenticated',
   data() {
@@ -39,7 +41,10 @@ export default {
   },
   methods: {
     logout() {
-      this.$router.push({ name: 'login' })
+      this.$store
+        .dispatch(LOGOUT)
+        .then(() => this.$router.push({ name: 'login' }))
+        .catch(() => console.log('Error caught in logout.'))
     }
   }
 }

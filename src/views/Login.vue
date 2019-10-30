@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { LOGIN } from '../store/modules/actions.type'
+import { LOGIN, LOGOUT } from '../store/modules/actions.type'
 
 export default {
   name: 'Login',
@@ -83,6 +83,12 @@ export default {
            * APIs. Hence, no data loss.
            */
           if (res.role !== 'Admin') {
+            this.$store
+              .dispatch(LOGOUT)
+              .then(() => this.$router.push({ name: 'login' }))
+              .catch(() => console.log('Error caught in logout.'))
+            this.username = ''
+            this.password = ''
             this.snackbarError = true
             this.snackbarMessage =
               'You are not authorized to access this portal.'
