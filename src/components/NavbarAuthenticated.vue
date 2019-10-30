@@ -36,7 +36,10 @@ export default {
   name: 'NavbarAuthenticated',
   data() {
     return {
-      tabs: [{ text: 'Settings', route: '/settings' }]
+      tabs: [
+        { text: 'Search', route: '/search' },
+        { text: 'Settings', route: '/settings' }
+      ]
     }
   },
   methods: {

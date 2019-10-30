@@ -63,20 +63,23 @@ const ApiService = {
         if (error.response.status == 401) {
           // when 401 is received, clear localStorage
           // redirect to login page
-          store.dispatch(LOGOUT)
-          router.push({ name: 'login' })
+          if (error.response.data.message === 'Invalid token.') {
+            store.dispatch(LOGOUT)
+            router.push({ name: 'login' })
+          }
+
           throw error
         }
 
-        if (error.response.status == 403) {
-          router.push({ name: 'forbiddenpage' })
-          throw error
-        }
+        // if (error.response.status == 403) {
+        //   router.push({ name: 'forbiddenpage' })
+        //   throw error
+        // }
 
-        if (error.response.status == 404) {
-          router.push({ name: 'notfoundpage' })
-          throw error
-        }
+        // if (error.response.status == 404) {
+        //   router.push({ name: 'notfoundpage' })
+        //   throw error
+        // }
 
         // error not caused by 401, 403 or 404
         throw error
