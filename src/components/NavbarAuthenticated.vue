@@ -1,0 +1,48 @@
+<template>
+  <nav>
+    <v-app-bar color="primary" dark>
+      <!-- Brand Logo -->
+      <v-app-bar-nav-icon class="ml-4">
+        <v-avatar>
+          <v-img src="/favicon-32x32.png"></v-img>
+        </v-avatar>
+      </v-app-bar-nav-icon>
+
+      <v-toolbar-title class="text-uppercase title font-weight-bold">
+        <span>HWealth Admin Portal</span>
+      </v-toolbar-title>
+
+      <v-spacer></v-spacer>
+
+      <v-btn
+        text
+        rounded
+        v-for="tab in tabs"
+        :key="tab.text"
+        router
+        :to="tab.route"
+        class="ma-1"
+        >{{ tab.text }}</v-btn
+      >
+      <v-btn text rounded class="ma-1" @click="logout">Logout</v-btn>
+    </v-app-bar>
+  </nav>
+</template>
+
+<script>
+export default {
+  name: 'NavbarAuthenticated',
+  data() {
+    return {
+      tabs: [{ text: 'Settings', route: '/settings' }]
+    }
+  },
+  methods: {
+    logout() {
+      this.$router.push({ name: 'login' })
+    }
+  }
+}
+</script>
+
+<style></style>
