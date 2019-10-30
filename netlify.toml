@@ -1,0 +1,7 @@
+[context.master]
+  environment = { VUE_APP_API_URL="https://hwealth.herokuapp.com/api" }
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
