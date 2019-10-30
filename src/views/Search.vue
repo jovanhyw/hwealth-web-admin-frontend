@@ -8,17 +8,10 @@
           </v-toolbar>
           <v-form @submit.prevent="search">
             <v-card-text>
-              <v-text-field
-                label="Email"
-                prepend-icon="mdi-email"
-                type="text"
-                v-model="email"
-              />
+              <v-text-field label="Email" prepend-icon="mdi-email" type="text" v-model="email" />
 
               <v-row align="center" justify="center">
-                <v-btn color="primary" type="submit" :loading="btnLoading"
-                  >Submit</v-btn
-                >
+                <v-btn color="primary" type="submit" :loading="btnLoading">Submit</v-btn>
               </v-row>
             </v-card-text>
           </v-form>
@@ -54,9 +47,7 @@
                 <span class="font-weight-bold text-uppercase">Verified:</span>
               </v-col>
               <v-col cols="5">
-                <span class="text-capitalize">
-                  {{ userAccountDetails.verified }}
-                </span>
+                <span class="text-capitalize">{{ userAccountDetails.verified }}</span>
               </v-col>
             </v-row>
             <v-divider></v-divider>
@@ -74,19 +65,13 @@
               </v-col>
 
               <v-col align="center" justify="center">
-                <v-btn
-                  class="ma-1"
-                  color="primary"
-                  @click="editRoleBtn = !editRoleBtn"
-                  >Edit</v-btn
-                >
+                <v-btn class="ma-1" color="primary" @click="editRoleBtn = !editRoleBtn">Edit</v-btn>
                 <v-btn
                   class="ma-1"
                   color="success"
                   :loading="updateRoleBtn"
                   @click="updateRole"
-                  >Update</v-btn
-                >
+                >Update</v-btn>
               </v-col>
             </v-row>
             <v-divider></v-divider>
@@ -103,27 +88,19 @@
                 ></v-select>
               </v-col>
               <v-col align="center" justify="center">
-                <v-btn
-                  class="ma-1"
-                  color="primary"
-                  @click="editLockedBtn = !editLockedBtn"
-                  >Edit</v-btn
-                >
+                <v-btn class="ma-1" color="primary" @click="editLockedBtn = !editLockedBtn">Edit</v-btn>
                 <v-btn
                   class="ma-1"
                   color="success"
                   :loading="updateLockedBtn"
                   @click="updateLockBtn"
-                  >Update</v-btn
-                >
+                >Update</v-btn>
               </v-col>
             </v-row>
             <v-divider v-if="userAccountDetails.lockReason"></v-divider>
             <v-row v-if="userAccountDetails.lockReason">
               <v-col cols="3" sm="3" md="3">
-                <span class="font-weight-bold text-uppercase"
-                  >Lock Reason:</span
-                >
+                <span class="font-weight-bold text-uppercase">Lock Reason:</span>
               </v-col>
               <v-col cols="5">
                 <span>{{ userAccountDetails.lockReason }}</span>
@@ -149,16 +126,13 @@
           />
 
           <v-row align="center" justify="center">
-            <v-btn color="error" class="ma-1" @click="updateLockDialog = false"
-              >Cancel</v-btn
-            >
+            <v-btn color="error" class="ma-1" @click="updateLockDialog = false">Cancel</v-btn>
             <v-btn
               color="primary"
               class="ma-1"
               :loading="submitUpdateLockBtn"
               @click="submitUpdateLock"
-              >Submit</v-btn
-            >
+            >Submit</v-btn>
           </v-row>
         </v-card-text>
       </v-card>
@@ -175,8 +149,7 @@
             snackbarMessage = ''
           }
         "
-        >Close</v-btn
-      >
+      >Close</v-btn>
     </v-snackbar>
 
     <v-snackbar v-model="snackbarError" :timeout="0" bottom color="error">
@@ -190,8 +163,7 @@
             snackbarMessage = ''
           }
         "
-        >Close</v-btn
-      >
+      >Close</v-btn>
     </v-snackbar>
   </v-container>
 </template>

@@ -8,7 +8,7 @@ const routes = [
   {
     path: '/',
     name: 'login',
-    component: () => import('../views/Login'),
+    component: () => import('@/views/Login'),
     meta: {
       public: true,
       onlyWhenLoggedOut: true
@@ -17,7 +17,12 @@ const routes = [
   {
     path: '/search',
     name: 'search',
-    component: () => import('../views/Search')
+    component: () => import('@/views/Search')
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('@/views/Settings')
   }
 ]
 
