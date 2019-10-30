@@ -5,6 +5,7 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 import ApiService from '@/services/api.service'
 import { TokenService } from '@/services/storage.service'
+import moment from 'moment'
 
 Vue.config.productionTip = false
 
@@ -16,6 +17,12 @@ ApiService.mountInterceptor()
 if (TokenService.getToken()) {
   ApiService.setHeader()
 }
+
+Vue.filter('formatDOB', function(value) {
+  if (value) {
+    return moment(String(value)).format('DD MMMM YYYY')
+  }
+})
 
 new Vue({
   router,

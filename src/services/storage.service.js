@@ -1,5 +1,6 @@
 const TOKEN_KEY = 'access_token'
 const REFRESH_TOKEN_KEY = 'refresh_token'
+const TFA_STATE = 'tfa_state'
 
 /**
  * Manage the how Access Tokens are being stored and retreived from storage.
@@ -30,5 +31,16 @@ export const TokenService = {
 
   removeRefreshToken() {
     localStorage.removeItem(REFRESH_TOKEN_KEY)
+  },
+
+  // TFA_STATE
+  getTfaState() {
+    return localStorage.getItem(TFA_STATE)
+  },
+  saveTfaState(state) {
+    localStorage.setItem(TFA_STATE, state)
+  },
+  removeTfaState() {
+    localStorage.removeItem(TFA_STATE)
   }
 }
