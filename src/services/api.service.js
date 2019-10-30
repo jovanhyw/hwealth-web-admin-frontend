@@ -65,7 +65,7 @@ const ApiService = {
           // redirect to login page
           if (error.response.data.message === 'Invalid token.') {
             store.dispatch(LOGOUT)
-            router.push({ name: 'login' })
+            router.push({ name: 'login' }).catch(() => {})
           }
 
           throw error
