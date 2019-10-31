@@ -23,6 +23,7 @@ const mutations = {
 
     TokenService.removeToken()
     TokenService.removeTfaState()
+    TokenService.removeTfaAuth()
     ApiService.removeHeader()
   }
 }

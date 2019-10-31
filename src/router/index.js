@@ -23,6 +23,15 @@ const routes = [
     path: '/settings',
     name: 'settings',
     component: () => import('@/views/Settings')
+  },
+  {
+    path: '/two-factor',
+    name: 'twofaverification',
+    component: () => import('@/views/TwoFaVerification'),
+    meta: {
+      onlyForTfa: true,
+      onlyForThoseWhoHaveNotAuthenticate: true
+    }
   }
 ]
 
@@ -37,7 +46,16 @@ router.beforeEach((to, from, next) => {
   const onlyWhenLoggedOut = to.matched.some(
     record => record.meta.onlyWhenLoggedOut
   )
+  const onlyForTfa = to.matched.some(record => record.meta.onlyForTfa)
+  const onlyForThoseWhoHaveNotAuthenticate = to.matched.some(
+    record => record.meta.onlyForThoseWhoHaveNotAuthenticate
+  )
+
   const loggedIn = !!TokenService.getToken()
+  const tfaEnabled = !!(TokenService.getTfaState() === 'false' ? false : true)
+  const tfaAuthenticated = !!(TokenService.getTfaAuth() === 'false'
+    ? false
+    : true)
 
   // if route is private & user not loggedIn
   // redirect to login page
@@ -48,8 +66,24 @@ router.beforeEach((to, from, next) => {
     })
   }
 
+  // this code not working
+  // if user is logged in, and have tfa enabled, and tfa is not authenticated
+  // if (tfaAuthenticated === false) {
+  //   return next('/two-factor')
+  // }
+
   // Do not allow user to visit login page if they are logged in
   if (loggedIn && onlyWhenLoggedOut) {
+    return next('/search')
+  }
+
+  // Do not allow user to visit tfa page if they did not enable tfa
+  if (!tfaEnabled && onlyForTfa) {
+    return next('/search')
+  }
+
+  // Do not allow user to visit tfa page if they already authenticated 2fa
+  if (tfaAuthenticated && onlyForThoseWhoHaveNotAuthenticate) {
     return next('/search')
   }
 

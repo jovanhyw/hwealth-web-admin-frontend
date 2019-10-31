@@ -53,6 +53,7 @@
 
 <script>
 import { LOGIN, LOGOUT } from '../store/modules/actions.type'
+import { TokenService } from '@/services/storage.service'
 
 export default {
   name: 'Login',
@@ -93,6 +94,14 @@ export default {
             this.snackbarMessage =
               'You are not authorized to access this portal.'
             return
+          }
+
+          /**
+           * If account has 2FA enabled, direct to 2FA page
+           */
+          if (res.twoFactorEnabled) {
+            TokenService.saveTfaAuth(false)
+            return this.$router.push({ name: 'twofaverification' })
           }
 
           this.$router.push({ name: 'search' })
