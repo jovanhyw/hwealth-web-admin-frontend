@@ -98,28 +98,26 @@
             <!-- For Profile Tab -->
             <v-tab-item>
               <v-card flat>
-                <v-form
-                  @submit.prevent="updateProfile"
-                  v-model="validProfileForm"
-                >
-                  <v-container fluid class="ma-2">
-                    <v-form>
-                      <div class="title">Profile</div>
+                <v-container fluid class="ma-2">
+                  <div class="title">Profile</div>
+                  <v-form
+                    @submit.prevent="updateProfile"
+                    v-model="validProfileForm"
+                  >
+                    <v-row>
+                      <v-col cols="12" sm="6">
+                        <v-text-field
+                          v-model="profile.fullname"
+                          label="Full Name"
+                          outlined
+                          :disabled="editProfileBtn"
+                          :rules="[notEmptyRule('Full Name')]"
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
 
-                      <v-row>
-                        <v-col cols="12" sm="6">
-                          <v-text-field
-                            v-model="profile.fullname"
-                            label="Full Name"
-                            outlined
-                            :disabled="editProfileBtn"
-                            :rules="[notEmptyRule('Full Name')]"
-                          ></v-text-field>
-                        </v-col>
-                      </v-row>
-
-                      <!-- Disable DOB for admin -->
-                      <!-- <v-row class="mt-n6">
+                    <!-- Disable DOB for admin -->
+                    <!-- <v-row class="mt-n6">
                         <v-col cols="12" sm="6">
                           <v-text-field
                             v-model="profile.dateOfBirth"
@@ -128,47 +126,45 @@
                             :disabled="editProfileBtn"
                           ></v-text-field>
                         </v-col>
-                      </v-row>-->
+                    </v-row>-->
 
-                      <v-row class="mt-n6" v-if="editProfileBtn == true">
-                        <v-col cols="12" sm="6">
-                          <v-btn
-                            color="primary"
-                            class="ma-1"
-                            @click="editProfileBtn = !editProfileBtn"
-                          >
-                            <v-icon left>mdi-pencil</v-icon>
-                            <span>Edit</span>
-                          </v-btn>
-                        </v-col>
-                      </v-row>
+                    <v-row class="mt-n6" v-if="editProfileBtn == true">
+                      <v-col cols="12" sm="6">
+                        <v-btn
+                          color="primary"
+                          class="ma-1"
+                          @click="editProfileBtn = !editProfileBtn"
+                        >
+                          <v-icon left>mdi-pencil</v-icon>
+                          <span>Edit</span>
+                        </v-btn>
+                      </v-col>
+                    </v-row>
 
-                      <v-row class="mt-n6" v-else>
-                        <v-col cols="12" sm="6">
-                          <v-btn
-                            color="error"
-                            class="ma-1"
-                            @click="editProfileBtn = !editProfileBtn"
-                          >
-                            <v-icon left>mdi-cancel</v-icon>
-                            <span>Cancel</span>
-                          </v-btn>
-                          <v-btn
-                            color="success"
-                            class="ma-1"
-                            type="submit"
-                            :disabled="!validProfileForm"
-                            :loading="updateProfileBtn"
-                            @click="updateProfile"
-                          >
-                            <v-icon left>mdi-check</v-icon>
-                            <span>Update</span>
-                          </v-btn>
-                        </v-col>
-                      </v-row>
-                    </v-form>
-                  </v-container>
-                </v-form>
+                    <v-row class="mt-n6" v-else>
+                      <v-col cols="12" sm="6">
+                        <v-btn
+                          color="error"
+                          class="ma-1"
+                          @click="editProfileBtn = !editProfileBtn"
+                        >
+                          <v-icon left>mdi-cancel</v-icon>
+                          <span>Cancel</span>
+                        </v-btn>
+                        <v-btn
+                          color="success"
+                          class="ma-1"
+                          type="submit"
+                          :disabled="!validProfileForm"
+                          :loading="updateProfileBtn"
+                        >
+                          <v-icon left>mdi-check</v-icon>
+                          <span>Update</span>
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-form>
+                </v-container>
               </v-card>
             </v-tab-item>
 
@@ -529,7 +525,24 @@ export default {
         })
     },
     updateProfile() {
-      //
+      this.updateProfileBtn = true
+      ApiService.put('/profile/update-profile', {
+        fullname: this.profile.fullname
+      })
+        .then(res => {
+          this.updateProfileBtn = false
+          this.snackbarSuccess = true
+          this.snackbarMessage = res.data.message
+          this.editProfileBtn = true
+          this.getProfile()
+        })
+        .catch(err => {
+          this.updateProfileBtn = false
+          this.snackbarError = true
+          this.snackbarMessage = err.response.data.message
+          this.editProfileBtn = true
+          this.getProfile()
+        })
     },
     updatePassword() {
       if (
