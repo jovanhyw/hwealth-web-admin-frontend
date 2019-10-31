@@ -223,12 +223,14 @@
                     Authenticator (Android), Google Authenticator, Authy.
                   </span>
 
-                  <v-divider class="mt-4"></v-divider>
+                  <v-divider class="my-4"></v-divider>
 
-                  <div v-if="tfaEnabled === false">
-                    <v-row>
-                      <v-col cols="12" sm="6">
-                        <v-form>
+                  <!-- Render Enable Button -->
+                  <!-- To Generate the secret -->
+                  <div v-if="tfaEnabled === false && tfaSecret === null">
+                    <v-form @submit.prevent="generateTfaSecret">
+                      <v-row>
+                        <v-col cols="12" sm="6">
                           <v-text-field
                             v-model="tfaPassword"
                             label="Password"
@@ -236,18 +238,114 @@
                             autocomplete="off"
                             outlined
                           ></v-text-field>
-                        </v-form>
+                        </v-col>
+                      </v-row>
+
+                      <v-row class="mt-n10">
+                        <v-col cols="12" sm="6">
+                          <v-btn
+                            color="success"
+                            :loading="generateSecretBtn"
+                            @click="generateTfaSecret"
+                          >
+                            <span>Enable</span>
+                          </v-btn>
+                        </v-col>
+                      </v-row>
+                    </v-form>
+                  </div>
+
+                  <!-- Render the QRCode and secret -->
+                  <!-- To send to server secret and token -->
+                  <div v-if="qrImage !== null">
+                    <div class="font-weight-bold">
+                      Step 1: Scan the following QRCode on your Authenticator
+                      App.
+                    </div>
+                    <img :src="qrImage" />
+                    <div class="font-weight-bold">
+                      Alternatively, enter the following secret manually:
+                    </div>
+                    <div>{{ base32secret }}</div>
+
+                    <v-divider class="my-4"></v-divider>
+
+                    <div class="font-weight-bold">
+                      Step 2: To confirm the authenticator app is set up
+                      correctly, enter the security code that appears on the
+                      authenticator app.
+                    </div>
+                    <v-form @submit.prevent="enableTfa">
+                      <v-row class="mb-n6">
+                        <v-col cols="12" sm="6">
+                          <v-text-field
+                            v-model="securityCode"
+                            label="Security Code"
+                            outlined
+                            :maxlength="6"
+                          ></v-text-field>
+                        </v-col>
+                      </v-row>
+
+                      <v-row class="mt-n10">
+                        <v-col cols="12" sm="6">
+                          <v-btn
+                            color="success"
+                            :loading="verifyTfaBtn"
+                            @click="enableTfa"
+                          >
+                            <span>Verify</span>
+                          </v-btn>
+                        </v-col>
+                      </v-row>
+                    </v-form>
+                  </div>
+
+                  <!-- Render Disable Button -->
+                  <!-- To disable 2FA -->
+                  <div v-if="tfaEnabled === true">
+                    <v-form>
+                      <v-row>
+                        <v-col cols="12" sm="6">
+                          <v-text-field
+                            v-model="tfaPassword"
+                            label="Password"
+                            type="password"
+                            autocomplete="off"
+                            outlined
+                          ></v-text-field>
+                        </v-col>
+                      </v-row>
+
+                      <v-row class="mt-n10">
+                        <v-col cols="12" sm="6">
+                          <v-btn color="error">
+                            <span>Disable</span>
+                          </v-btn>
+                        </v-col>
+                      </v-row>
+                    </v-form>
+
+                    <v-row>
+                      <v-col cols="12" sm="6">
+                        <div class="title">View Recovery Code</div>
                       </v-col>
                     </v-row>
 
-                    <v-row class="mt-n10">
+                    <v-row class="mt-n4">
                       <v-col cols="12" sm="6">
-                        <v-btn color="success">
-                          <span>Enable</span>
+                        <v-btn
+                          color="primary"
+                          :loading="viewBtnLoading"
+                          @click="getRecoveryCode"
+                        >
+                          <span>View</span>
                         </v-btn>
                       </v-col>
                     </v-row>
                   </div>
+
+                  <!-- END OF SECURITY TAB -->
                 </v-container>
               </v-card>
             </v-tab-item>
@@ -288,6 +386,37 @@
             >Close</v-btn
           >
         </v-snackbar>
+
+        <v-dialog v-model="recoverCodeDialog" persistent max-width="500">
+          <v-card class="elevation-5">
+            <v-toolbar color="primary" dark flat>
+              <v-toolbar-title>Recovery Code</v-toolbar-title>
+            </v-toolbar>
+            <v-card-text>
+              <div class="font-weight-bold mx-2 my-4 black--text">
+                Please write down or save this recovery code. This code will
+                allow you to recover your account in case you lose access your
+                authenticator app.
+              </div>
+
+              <div align="center" justify="center">
+                <span class="font-weight-bold mb-4 black--text"
+                  >Recovery Code:</span
+                >
+                <div>{{ recoveryCode }}</div>
+              </div>
+
+              <v-row align="center" justify="center">
+                <v-btn
+                  color="primary"
+                  class="ma-1 mt-3"
+                  @click="recoverCodeDialog = false"
+                  >Ok</v-btn
+                >
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
       </v-col>
     </v-row>
   </v-container>
@@ -296,6 +425,7 @@
 <script>
 import ApiService from '@/services/api.service'
 import { TokenService } from '@/services/storage.service'
+import QRCode from 'qrcode'
 
 export default {
   name: 'Settings',
@@ -316,7 +446,16 @@ export default {
       confirmPassword: '',
       updatePasswordBtn: false,
       tfaPassword: '',
-      tfaEnabled: TokenService.getTfaState() === 'false' ? false : true
+      tfaEnabled: TokenService.getTfaState() === 'false' ? false : true,
+      generateSecretBtn: false,
+      tfaSecret: null,
+      base32secret: null,
+      qrImage: null,
+      securityCode: null,
+      verifyTfaBtn: false,
+      recoveryCode: null,
+      recoverCodeDialog: false,
+      viewBtnLoading: false
     }
   },
   methods: {
@@ -383,12 +522,84 @@ export default {
           this.snackbarError = true
           this.snackbarMessage = err.response.data.message
         })
+    },
+    generateTfaSecret() {
+      this.generateSecretBtn = true
+      ApiService.post('/two-factor/get-authenticator', {
+        password: this.tfaPassword
+      })
+        .then(res => {
+          this.generateSecretBtn = false
+          this.tfaPassword = ''
+          this.tfaSecret = res.data.secret
+
+          this.base32secret = this.tfaSecret.base32
+          const otpAuth = this.tfaSecret.otpauth_url
+          QRCode.toDataURL(otpAuth, (err, dataURL) => {
+            this.qrImage = dataURL
+          })
+        })
+        .catch(err => {
+          this.generateSecretBtn = false
+          this.snackbarError = true
+          this.snackbarMessage = err.response.data.message
+        })
+    },
+    enableTfa() {
+      this.verifyTfaBtn = true
+      ApiService.post('/two-factor/enable', {
+        secret: this.base32secret,
+        token: this.securityCode
+      })
+        .then(res => {
+          this.verifyTfaBtn = false
+          this.snackbarSuccess = true
+          this.snackbarMessage = res.data.message
+
+          // on success, clear the variables
+          this.tfaSecret = null
+          this.base32secret = null
+          this.qrImage = null
+          this.securityCode = null
+
+          // set the 2fa state to true
+          TokenService.saveTfaState(true)
+          this.tfaEnabled = true
+
+          // clear the current jwt, save the new jwt
+          TokenService.removeToken()
+          ApiService.removeHeader()
+          TokenService.saveToken(res.data.token)
+          ApiService.setHeader()
+
+          // show the recovery code
+          this.recoveryCode = res.data.recoveryCode
+          this.recoverCodeDialog = true
+        })
+        .catch(err => {
+          this.verifyTfaBtn = false
+          this.snackbarError = true
+          this.snackbarMessage = err.response.data.message
+        })
+    },
+    getRecoveryCode() {
+      this.viewBtnLoading = true
+      ApiService.get('/two-factor/get-recovery-code')
+        .then(res => {
+          this.viewBtnLoading = false
+          this.recoveryCode = res.data.recoveryCode
+          this.recoverCodeDialog = true
+        })
+        .catch(err => {
+          this.viewBtnLoading = false
+          this.snackbarError = true
+          this.snackbarMessage = err.response.data.message
+        })
     }
   },
   created() {
     this.getAccount()
     this.getProfile()
-    console.log(this.tfaEnabled)
   }
 }
 </script>
