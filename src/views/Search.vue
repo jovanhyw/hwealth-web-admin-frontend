@@ -6,17 +6,23 @@
           <v-toolbar color="primary" dark flat>
             <v-toolbar-title>Search for a user</v-toolbar-title>
           </v-toolbar>
-          <v-form @submit.prevent="search">
+          <v-form @submit.prevent="search" v-model="validSearchForm">
             <v-card-text>
               <v-text-field
                 label="Email"
                 prepend-icon="mdi-email"
                 type="text"
                 v-model="email"
+                :rules="[notEmptyRule('Search form'), emailRule()]"
               />
 
               <v-row align="center" justify="center">
-                <v-btn color="primary" type="submit" :loading="btnLoading"
+                <v-btn
+                  color="primary"
+                  type="submit"
+                  class="mt-1"
+                  :loading="btnLoading"
+                  :disabled="!validSearchForm"
                   >Submit</v-btn
                 >
               </v-row>
@@ -54,9 +60,9 @@
                 <span class="font-weight-bold text-uppercase">Verified:</span>
               </v-col>
               <v-col cols="5">
-                <span class="text-capitalize">{{
-                  userAccountDetails.verified
-                }}</span>
+                <span class="text-capitalize">
+                  {{ userAccountDetails.verified }}
+                </span>
               </v-col>
             </v-row>
             <v-divider></v-divider>
@@ -73,20 +79,32 @@
                 ></v-select>
               </v-col>
 
-              <v-col align="center" justify="center">
+              <v-col v-if="editRoleBtn == true">
                 <v-btn
-                  class="ma-1"
                   color="primary"
+                  class="ma-1"
                   @click="editRoleBtn = !editRoleBtn"
-                  >Edit</v-btn
                 >
+                  <span>Edit</span>
+                </v-btn>
+              </v-col>
+
+              <v-col v-else>
+                <v-btn
+                  color="error"
+                  class="ma-1"
+                  @click="editRoleBtn = !editRoleBtn"
+                >
+                  <span>Cancel</span>
+                </v-btn>
                 <v-btn
                   class="ma-1"
                   color="success"
                   :loading="updateRoleBtn"
                   @click="updateRole"
-                  >Update</v-btn
                 >
+                  <span>Update</span>
+                </v-btn>
               </v-col>
             </v-row>
             <v-divider></v-divider>
@@ -102,20 +120,33 @@
                   class="pa-0 ma-0 text-capitalize"
                 ></v-select>
               </v-col>
-              <v-col align="center" justify="center">
+
+              <v-col v-if="editLockedBtn == true">
                 <v-btn
-                  class="ma-1"
                   color="primary"
+                  class="ma-1"
                   @click="editLockedBtn = !editLockedBtn"
-                  >Edit</v-btn
                 >
+                  <span>Edit</span>
+                </v-btn>
+              </v-col>
+
+              <v-col v-else>
+                <v-btn
+                  color="error"
+                  class="ma-1"
+                  @click="editLockedBtn = !editLockedBtn"
+                >
+                  <span>Cancel</span>
+                </v-btn>
                 <v-btn
                   class="ma-1"
                   color="success"
                   :loading="updateLockedBtn"
                   @click="updateLockBtn"
-                  >Update</v-btn
                 >
+                  <span>Update</span>
+                </v-btn>
               </v-col>
             </v-row>
             <v-divider v-if="userAccountDetails.lockReason"></v-divider>
@@ -140,26 +171,34 @@
           <v-toolbar-title>Enter a reason</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
-          <v-text-field
-            class="mt-5"
-            label="Please enter a reason for locking this account."
-            prepend-icon="mdi-calendar-text-outline"
-            type="text"
-            v-model="lockReason"
-          />
+          <v-form @submit.prevent="submitUpdateLock" v-model="validLockForm">
+            <v-text-field
+              class="mt-5"
+              label="Please enter a reason for locking this account."
+              prepend-icon="mdi-calendar-text-outline"
+              type="text"
+              v-model="lockReason"
+              :rules="[notEmptyRule('Reason')]"
+            />
 
-          <v-row align="center" justify="center">
-            <v-btn color="error" class="ma-1" @click="updateLockDialog = false"
-              >Cancel</v-btn
-            >
-            <v-btn
-              color="primary"
-              class="ma-1"
-              :loading="submitUpdateLockBtn"
-              @click="submitUpdateLock"
-              >Submit</v-btn
-            >
-          </v-row>
+            <v-row align="center" justify="center">
+              <v-btn
+                color="error"
+                class="ma-1"
+                @click="updateLockDialog = false"
+                >Cancel</v-btn
+              >
+              <v-btn
+                color="success"
+                class="ma-1"
+                type="submit"
+                :loading="submitUpdateLockBtn"
+                @click="submitUpdateLock"
+                :disabled="!validLockForm"
+                >Submit</v-btn
+              >
+            </v-row>
+          </v-form>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -218,7 +257,15 @@ export default {
       updateLockDialog: false,
       lockReason: '',
       type: null,
-      submitUpdateLockBtn: false
+      submitUpdateLockBtn: false,
+      notEmptyRule(property) {
+        return v => (v && v.length > 0) || `${property} cannot be empty.`
+      },
+      emailRule() {
+        return v => /.+@.+\..+/.test(v) || 'E-mail must be valid.'
+      },
+      validSearchForm: false,
+      validLockForm: false
     }
   },
   methods: {

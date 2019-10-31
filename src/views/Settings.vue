@@ -25,7 +25,10 @@
             <v-tab-item>
               <v-card flat>
                 <v-container fluid class="ma-2">
-                  <v-form @submit.prevent="updateEmail">
+                  <v-form
+                    @submit.prevent="updateEmail"
+                    v-model="validAccountForm"
+                  >
                     <div class="title">Account</div>
 
                     <v-row>
@@ -46,6 +49,7 @@
                           label="Email"
                           outlined
                           :disabled="editAccountBtn"
+                          :rules="[notEmptyRule('Email'), emailRule()]"
                         ></v-text-field>
                       </v-col>
                     </v-row>
@@ -77,6 +81,7 @@
                           color="success"
                           class="ma-1"
                           type="submit"
+                          :disabled="!validAccountForm"
                           :loading="updateAccountBtn"
                           @click="updateEmail"
                         >
@@ -93,7 +98,10 @@
             <!-- For Profile Tab -->
             <v-tab-item>
               <v-card flat>
-                <v-form @submit.prevent="updateProfile">
+                <v-form
+                  @submit.prevent="updateProfile"
+                  v-model="validProfileForm"
+                >
                   <v-container fluid class="ma-2">
                     <v-form>
                       <div class="title">Profile</div>
@@ -105,11 +113,13 @@
                             label="Full Name"
                             outlined
                             :disabled="editProfileBtn"
+                            :rules="[notEmptyRule('Full Name')]"
                           ></v-text-field>
                         </v-col>
                       </v-row>
 
-                      <v-row class="mt-n6">
+                      <!-- Disable DOB for admin -->
+                      <!-- <v-row class="mt-n6">
                         <v-col cols="12" sm="6">
                           <v-text-field
                             v-model="profile.dateOfBirth"
@@ -118,7 +128,7 @@
                             :disabled="editProfileBtn"
                           ></v-text-field>
                         </v-col>
-                      </v-row>
+                      </v-row>-->
 
                       <v-row class="mt-n6" v-if="editProfileBtn == true">
                         <v-col cols="12" sm="6">
@@ -143,7 +153,14 @@
                             <v-icon left>mdi-cancel</v-icon>
                             <span>Cancel</span>
                           </v-btn>
-                          <v-btn color="success" class="ma-1" type="submit">
+                          <v-btn
+                            color="success"
+                            class="ma-1"
+                            type="submit"
+                            :disabled="!validProfileForm"
+                            :loading="updateProfileBtn"
+                            @click="updateProfile"
+                          >
                             <v-icon left>mdi-check</v-icon>
                             <span>Update</span>
                           </v-btn>
@@ -455,7 +472,15 @@ export default {
       verifyTfaBtn: false,
       recoveryCode: null,
       recoverCodeDialog: false,
-      viewBtnLoading: false
+      viewBtnLoading: false,
+      validAccountForm: false,
+      notEmptyRule(property) {
+        return v => (v && v.length > 0) || `${property} cannot be empty.`
+      },
+      emailRule() {
+        return v => /.+@.+\..+/.test(v) || 'E-mail must be valid.'
+      },
+      validProfileForm: false
     }
   },
   methods: {

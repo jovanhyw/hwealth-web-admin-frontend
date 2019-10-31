@@ -6,13 +6,14 @@
           <v-toolbar color="primary" dark flat>
             <v-toolbar-title>Admin Login</v-toolbar-title>
           </v-toolbar>
-          <v-form @submit.prevent="login">
+          <v-form @submit.prevent="login" v-model="validForm">
             <v-card-text>
               <v-text-field
                 label="Username"
                 prepend-icon="mdi-account"
                 type="text"
                 v-model="username"
+                :rules="[notEmptyRule('Username')]"
               />
 
               <v-text-field
@@ -21,11 +22,16 @@
                 type="password"
                 autocomplete="off"
                 v-model="password"
+                :rules="[notEmptyRule('Password')]"
               />
             </v-card-text>
             <v-card-actions class="pb-4 pr-4">
               <v-spacer />
-              <v-btn color="primary" type="submit" :loading="btnLoading"
+              <v-btn
+                color="primary"
+                type="submit"
+                :loading="btnLoading"
+                :disabled="!validForm"
                 >Login</v-btn
               >
             </v-card-actions>
@@ -63,7 +69,11 @@ export default {
       password: '',
       snackbarError: false,
       snackbarMessage: '',
-      btnLoading: false
+      btnLoading: false,
+      notEmptyRule(property) {
+        return v => (v && v.length > 0) || `${property} is required.`
+      },
+      validForm: false
     }
   },
   methods: {
