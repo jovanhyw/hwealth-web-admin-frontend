@@ -222,7 +222,6 @@
                           color="primary"
                           type="submit"
                           :loading="updatePasswordBtn"
-                          @click="updatePassword"
                         >
                           <span>Update Password</span>
                         </v-btn>
@@ -321,7 +320,7 @@
                   <!-- Render Disable Button -->
                   <!-- To disable 2FA -->
                   <div v-if="tfaEnabled === true">
-                    <v-form>
+                    <v-form @submit.prevent="disableTfa">
                       <v-row>
                         <v-col cols="12" sm="6">
                           <v-text-field
@@ -336,7 +335,11 @@
 
                       <v-row class="mt-n10">
                         <v-col cols="12" sm="6">
-                          <v-btn color="error">
+                          <v-btn
+                            color="error"
+                            :loading="disableBtnLoading"
+                            @click="disableTfa"
+                          >
                             <span>Disable</span>
                           </v-btn>
                         </v-col>
@@ -472,6 +475,7 @@ export default {
       verifyTfaBtn: false,
       recoveryCode: null,
       recoverCodeDialog: false,
+      disableBtnLoading: false,
       viewBtnLoading: false,
       validAccountForm: false,
       notEmptyRule(property) {
@@ -528,6 +532,24 @@ export default {
       //
     },
     updatePassword() {
+      if (
+        this.currentPassword === '' ||
+        this.newPassword === '' ||
+        this.confirmPassword === ''
+      ) {
+        this.updatePasswordBtn = false
+        this.snackbarError = true
+        this.snackbarMessage = 'Password field are required.'
+        return
+      }
+
+      if (this.newPassword !== this.confirmPassword) {
+        this.updatePasswordBtn = false
+        this.snackbarError = true
+        this.snackbarMessage = "New passwords don't match."
+        return
+      }
+
       this.updatePasswordBtn = true
       ApiService.put('/account/update-password', {
         currentPassword: this.currentPassword,
@@ -549,6 +571,13 @@ export default {
         })
     },
     generateTfaSecret() {
+      if (this.tfaPassword === '') {
+        this.generateSecretBtn = false
+        this.snackbarError = true
+        this.snackbarMessage = 'Password field is required.'
+        return
+      }
+
       this.generateSecretBtn = true
       ApiService.post('/two-factor/get-authenticator', {
         password: this.tfaPassword
@@ -571,6 +600,13 @@ export default {
         })
     },
     enableTfa() {
+      if (this.securityCode === null || this.securityCode === '') {
+        this.verifyTfaBtn = false
+        this.snackbarError = true
+        this.snackbarMessage = 'Security code is required.'
+        return
+      }
+
       this.verifyTfaBtn = true
       ApiService.post('/two-factor/enable', {
         secret: this.base32secret,
@@ -617,6 +653,35 @@ export default {
         })
         .catch(err => {
           this.viewBtnLoading = false
+          this.snackbarError = true
+          this.snackbarMessage = err.response.data.message
+        })
+    },
+    disableTfa() {
+      if (this.tfaPassword === '') {
+        this.generateSecretBtn = false
+        this.snackbarError = true
+        this.snackbarMessage = 'Password field is required.'
+        return
+      }
+
+      this.disableBtnLoading = true
+      ApiService.post('/two-factor/disable', {
+        password: this.tfaPassword
+      })
+        .then(res => {
+          this.disableBtnLoading = false
+          this.snackbarSuccess = true
+          this.snackbarMessage = res.data.message
+
+          this.tfaPassword = ''
+
+          // set the 2fa state to false
+          TokenService.saveTfaState(false)
+          this.tfaEnabled = false
+        })
+        .catch(err => {
+          this.disableBtnLoading = false
           this.snackbarError = true
           this.snackbarMessage = err.response.data.message
         })
