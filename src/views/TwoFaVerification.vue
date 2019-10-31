@@ -9,10 +9,9 @@
 
           <v-card-text>
             <div class="subtitle-1" align="center" justify="center">
-              <span
-                >Enter the 6 digit verification code from your authenticator
-                app.</span
-              >
+              <span>
+                Enter the 6 digit verification code from your authenticator app.
+              </span>
 
               <v-form @submit.prevent="validate2fa">
                 <v-row class="mb-n6" align="center" justify="center">
@@ -86,6 +85,13 @@ export default {
   },
   methods: {
     validate2fa() {
+      if (this.securityCode === null || this.securityCode === '') {
+        this.verifyTfaBtn = false
+        this.snackbarError = true
+        this.snackbarMessage = 'Security code is required.'
+        return
+      }
+
       this.verifyBtnLoading = true
       ApiService.post('/two-factor/authenticate', { token: this.securityCode })
         .then(res => {
