@@ -9,9 +9,10 @@
 
           <v-card-text>
             <div class="subtitle-1" align="center" justify="center">
-              <span>
-                Enter the 6 digit verification code from your authenticator app.
-              </span>
+              <span
+                >Enter the 6 digit verification code from your authenticator
+                app.</span
+              >
 
               <v-form @submit.prevent="validate2fa">
                 <v-row class="mb-n6" align="center" justify="center">
@@ -43,7 +44,7 @@
 
           <v-card-actions>
             <div class="ma-2 subtitle-2">
-              <a href="@">
+              <a href="https://hwealth.netlify.com/account/recover">
                 <i>I lost access to my Authenticator device</i>
               </a>
             </div>
