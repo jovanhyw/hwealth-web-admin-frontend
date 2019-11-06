@@ -15,7 +15,7 @@
     X-Frame-Options = "SAMEORIGIN"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
-    Content-Security-Policy = "default-src https:; script-src https: 'unsafe-inline'; style-src https: 'unsafe-inline'; object-src 'none'"
+    Content-Security-Policy = "default-src https:; script-src https: 'unsafe-inline'; style-src https: 'unsafe-inline'; object-src 'none'; img-src 'self' data: https:"
     Referrer-Policy = "same-origin"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
     Feature-Policy = "vibrate 'none'; geolocation 'none'; microphone 'none'; camera 'none'; speaker 'none';"
