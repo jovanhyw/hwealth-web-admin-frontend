@@ -32,6 +32,10 @@ const routes = [
       onlyForTfa: true,
       onlyForThoseWhoHaveNotAuthenticate: true
     }
+  },
+  {
+    path: '/*',
+    redirect: '/'
   }
 ]
 
