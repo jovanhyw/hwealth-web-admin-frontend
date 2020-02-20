@@ -1,5 +1,5 @@
 [context.master]
-  environment = { VUE_APP_API_URL="https://hwealth.me/api" }
+  environment = { VUE_APP_API_URL="https://hwealth.herokuapp.com/api" }
 
 [context.dev]
   environment = { VUE_APP_API_URL="https://hwealth.herokuapp.com/api" }
